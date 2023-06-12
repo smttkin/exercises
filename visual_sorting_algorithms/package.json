@@ -1,0 +1,21 @@
+{
+  "name": "visual_sorting_algorithms",
+  "version": "1.0.0",
+  "description": "Maybe you used sorting algorithms, maybe you know some of them but how about seeing and hearing them. This project was started as a result of inspiration.  ",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm install && node src/scripts/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "exercises"
+  },
+  "keywords": [
+    "sorting",
+    "algorithm",
+    "notes",
+    "colors"
+  ],
+  "author": "smttkin",
+  "license": "ISC"
+}

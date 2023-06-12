@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color:rgb(246, 0, 70);
+        }
+
+        #view-container {
+            background-color: rgb(140, 255, 150);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding:4px;
+            box-sizing: border-box;
+        }
+        
+        #view-canvas {
+            background-color: rgb(0,0,0);
+        }
+        #cookieConsent {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background-color: #f0f0f0;
+  text-align: center;
+}
+    </style>
+    <script src="scripts/Helpers.js"></script>
+    <script src="scripts/SoundPlayer.js"></script>
+    <script src="scripts/ArrayVisualizer.js"></script>
+</head>
+<body>
+    <div id="view-container">
+        <canvas id="view-canvas"></canvas>
+    </div>
+    <div id="menu"></div>
+    <div id="cookieConsent" style="display:block;">
+       This web page uses Web Audio API 
+        <button id="allowCookiesButton" onclick="allowAudioWrapper(event)">Accept</button>
+    </div>
+
+    <script>
+    var visualizer;
+    var sound_player;
+    var octave4=getOctaveNotes(4, 261.63);
+    var octave5 = getOctaveNotes(5, 261.63 );
+   const mynotes = [
+    
+       "E5", "D#5", "E5", "D#5", "E5", "B4", "D5", "C5", "A4", "G4", "B4", "C5",
+       "E4", "A4", "B4", "C5", "D5", "E5", "G4", "A4", "B4", "C5", "D5", "E5", "E4",
+       "G4", "E4", "C4", "D4", "E4", "F4", "G4", "E4", "C4", "D4", "E4", "F4", "G4",
+       "E4", "C4", "E4", "G4", "A4", "F4", "G4", "E4", "C4", "E4", "G4", "A4", "F4",
+       "G4", "E4", "C4", "E4", "G4", "A4", "F4", "G4", "A4", "B4", "C5", "D5", "E5",
+       "G4", "A4", "B4", "C5", "D5", "E5", "E4", "G4", "E4", "C4", "D4", "E4", "F4",
+       "G4", "E4", "C4", "D4", "E4", "F4", "G4", "E4", "C4", "E4", "G4", "A4", "F4",
+       "G4", "E4", "C4", "E4", "G4", "A4", "F4", "G4", "E4", "C4"
+    ]; 
+    
+
+    var frequencies=[];
+    mynotes.forEach((elem)=>{
+        if(elem.includes('4'))
+        frequencies.push(octave4[elem.split('4')[0]]);
+        else if (elem.includes('5'))
+            frequencies.push(octave5[elem.split('5')[0]]);
+            else frequencies.push(0);
+    })
+    async function allowAudioWrapper(event){
+        
+        sound_player=allowAudio(event);
+        sound_player.setFrequencies(frequencies);
+        var arr= createRandArr(100, 10, 60);
+         var color_arr_;
+         color_arr_ = Array(arr.length);
+        color_arr_.fill("white");
+        bubbleSort(arr, (arr, args) => {
+            
+       
+            for(var i=0;i<args["color_arr"].length;i++){
+                var color_info=args["color_arr"][i];
+                color_arr_[color_info[0]]=color_info[1];
+            }
+            visualizer.updateView(arr, color_arr_, 0, sound_player.getDelayTimeMS(), (arr, color_arr, each_element_duration, sleepms) => {
+                sound_player.playNext();
+            return  sound_player.getDelayTimeMS();
+            });
+        })
+    }
+
+    async function bubbleSort(arr=[], step_callback = (arr,args={}) => { }){
+        const n = arr.length;
+
+        for (let i = 0; i < n - 1; i++) {
+            for (let j = 0; j < n - 1 - i; j++) {
+                await sleep(step_callback(arr, { "color_arr": [[j, "lime"], [j + 1, "blue"]] })/2);
+                if (arr[j] > arr[j + 1]) {
+                    const temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    
+                  
+                }
+                await sleep(step_callback(arr, { "color_arr": [[j, "white"], [j + 1, "white"]] })/2);
+                
+            }
+            await sleep(step_callback(arr, { "color_arr": [[n-1-i, "lime"]] }));
+                
+        }
+        
+        await sleep(step_callback(arr, { "i": n-2, "j": 0 }));
+    }
+   
+    // Sayfa yüklendiğinde ve ekran boyutu değiştiğinde kenar boyutunu ayarla
+    window.addEventListener("DOMContentLoaded", (e)=>{ visualizer= new ArrayVisualizer(); visualizer.onReSize(); });
+    window.addEventListener("resize", (e)=>{visualizer.onReSize();});
+    </script>
+</body>
+</html>
