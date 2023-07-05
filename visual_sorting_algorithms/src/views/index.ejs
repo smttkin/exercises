@@ -1,38 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color:rgb(246, 0, 70);
-        }
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" type="text/css" href="/styles/index.css">
 
-        #view-container {
-            background-color: rgb(140, 255, 150);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding:4px;
-            box-sizing: border-box;
-        }
-        
-        #view-canvas {
-            background-color: rgb(0,0,0);
-        }
-        #cookieConsent {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 10px;
-  background-color: #f0f0f0;
-  text-align: center;
-}
-    </style>
     <script src="scripts/Helpers.js"></script>
     <script src="scripts/SoundPlayer.js"></script>
     <script src="scripts/ArrayVisualizer.js"></script>
@@ -40,22 +13,72 @@
 <body>
     <div id="view-container">
         <canvas id="view-canvas"></canvas>
+        <div id="view-menu">
+            <select class="custom-select">
+                <option value="bubble">Bubble Sort</option>
+                <option value="selection">Selection Sort</option>
+                <option value="insertion">Insertion Sort</option>
+                <option value="merge">Merge Sort</option>
+                <option value="quick">Quick Sort</option>
+                <option value="heap">Heap Sort</option>
+                <option value="shell">Shell Sort</option>
+                <option value="comb">Comb Sort</option>
+                <option value="counting">Counting Sort</option>
+                <option value="radix">Radix Sort</option>
+                <option value="bucket">Bucket Sort</option>
+            </select>
+
+        </div>
     </div>
-    <div id="menu"></div>
     <div id="cookieConsent" style="display:block;">
        This web page uses Web Audio API 
         <button id="allowCookiesButton" onclick="allowAudio(event)">Accept</button>
     </div>
 
     <script>
-        var visualizer;
-        
+        let visualizer;
+        let $menu_element;
+
         //Initializing global variables 
-        window.addEventListener("DOMContentLoaded", (e)=>{ visualizer= new ArrayVisualizer(); visualizer.onReSize(); });
-        
+        $(function (e){ 
+
+            //Initializing globals 
+            $menu_element=$("#view-menu"); 
+            visualizer=new ArrayVisualizer();
+            $menu_element.css("display", "none");
+            
+            //Setting some DOM Events
+            $(visualizer.view_container).on("mouseover",(e)=>{
+                $menu_element.css("display","flex");
+            });
+
+            $(visualizer.view_canvas).on("mouseleave" ,(e) => {
+               $menu_element.css("display", "none");
+            });
+            
+            $($menu_element).on("mouseleave", (e) => {
+                $menu_element.css("display", "none");
+            });
+
+            $(visualizer.view_container).on("mouseleave", (e) => {
+                $menu_element.css("display", "none");
+            });
+
+            //Update scale of view 
+            visualizer.onReSize(); 
+            reSizeElementCss($menu_element, visualizer.view_canvas.style.width, visualizer.view_canvas.style.height); 
+        });
         
         //Updating canvas size when window size changed 
-        window.addEventListener("resize", (e)=>{visualizer.onReSize();});
+        window.addEventListener("resize", (e)=>{
+            visualizer.onReSize();
+            reSizeElementCss($menu_element,visualizer.view_canvas.style.width,visualizer.view_canvas.style.height); 
+        });
+
+        function reSizeElementCss(el, w, h) {
+            el.css("width",w);
+            el.css("height", h);
+        }
     </script>
 </body>
 </html>
