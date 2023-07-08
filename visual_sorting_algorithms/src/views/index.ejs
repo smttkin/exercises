@@ -12,6 +12,7 @@
 </head>
 <body>
     <div id="view-container">
+        <h1 class="view-header" id="view-header-main">MAIN MENU</h1>
         <canvas id="view-canvas"></canvas>
         <div id="view-menu">
             <select class="custom-select">
@@ -28,7 +29,23 @@
                 <option value="bucket">Bucket Sort</option>
             </select>
 
+            <button class="view-menu-button" id="view-menu-resume-button">
+                <span>Resume</span>
+            </button>
+
+            <button class="view-menu-button" id="view-menu-exit-button">
+                <span>Exit</span>
+            </button>
+
+            <button class="view-menu-button" id="view-menu-pause-button">
+                <span>Pause</span>
+            </button>
+
+            <button class="view-menu-button" id="view-menu-restart-button">
+                <span>Restart</span>
+            </button>
         </div>
+
     </div>
     <div id="cookieConsent" style="display:block;">
        This web page uses Web Audio API 
@@ -36,48 +53,199 @@
     </div>
 
     <script>
+        //ArrayVisualizer Object 
         let visualizer;
-        let $menu_element;
+    
+        //Jquery Objects of HTML elements 
+        let 
+        $view_menu_element,
+        $view_canvas_element,
+        $view_container_element,
+        $view_header_main_element,
+        $view_menu_exit_button_element,
+        $view_menu_resume_button_element,
+        $view_menu_pause_button_element,
+        $view_menu_restart_button_element ;
 
-        //Initializing global variables 
+        //Event Objects 
+        const 
+        view_menu_close_event=new Event('view_menu_close'),
+        view_menu_resume_event = new Event('view_menu_resume'),
+        view_menu_pause_event = new Event('view_menu_pause'),
+        view_menu_restart_event = new Event('view_menu_restart'),
+        view_menu_open_event = new Event('view_menu_open'),
+        view_canvas_open_event= new Event('view_canvas_open'),
+        view_canvas_close_event = new Event('view_canvas_close') ;
+    
+
+
+        //On Document Loaded
         $(function (e){ 
 
-            //Initializing globals 
-            $menu_element=$("#view-menu"); 
+            /*Initializing GLOBALs*/
+            //Jquery Objects
+            $view_menu_element                =$('#view-menu'); 
+            $view_canvas_element              =$('#view-canvas');
+            $view_container_element           =$('#view-container');
+            $view_header_main_element         =$('#view-header-main');
+            $view_menu_exit_button_element    =$('#view-menu-exit-button');
+            $view_menu_resume_button_element  =$('#view-menu-resume-button');
+            $view_menu_pause_button_element   =$('#view-menu-pause-button');
+            $view_menu_restart_button_element =$('#view-menu-restart-button');
+            
+            //Visualizer Object
             visualizer=new ArrayVisualizer();
-            $menu_element.css("display", "none");
-            
-            //Setting some DOM Events
-            $(visualizer.view_container).on("mouseover",(e)=>{
-                $menu_element.css("display","flex");
-            });
 
-            $(visualizer.view_canvas).on("mouseleave" ,(e) => {
-               $menu_element.css("display", "none");
+         
+            //DOM Event Handling Through Jquery Events
+
+            //mouseenter:when mouse enter into the visible canvas elementarea 
+            $view_canvas_element.on("mouseenter",(e)=>{
+                document.dispatchEvent(view_canvas_close_event);
             });
             
-            $($menu_element).on("mouseleave", (e) => {
-                $menu_element.css("display", "none");
+            //mouseleave: when mouse leave from the visible canvas element area
+            $view_canvas_element.on("mouseleave", (e) => {
+                document.dispatchEvent(view_canvas_open_event);
             });
 
-            $(visualizer.view_container).on("mouseleave", (e) => {
-                $menu_element.css("display", "none");
+
+            //Main Menu Open Event
+            $view_canvas_element.on("click",(e)=>{
+                document.dispatchEvent(view_menu_open_event);
+                document.dispatchEvent(view_canvas_open_event);
+            });
+            
+
+            //Main Menu Close Event 
+            $view_menu_exit_button_element.on("click", (e) => {
+                document.dispatchEvent(view_menu_close_event);
+            });
+            
+            //Resume Event 
+            $view_menu_resume_button_element.on("click", (e) => { 
+                document.dispatchEvent(view_canvas_close_event);
+                document.dispatchEvent(view_menu_resume_event);
+                document.dispatchEvent(view_menu_close_event);
+            });
+
+            //Pause Event
+            $view_menu_pause_button_element.on("click", (e) => 
+            {
+                document.dispatchEvent(view_canvas_close_event); 
+                document.dispatchEvent(view_menu_pause_event);
+                document.dispatchEvent(view_menu_close_event);
+            });
+
+            //Restart Event
+            $view_menu_restart_button_element.on("click", (e) => { 
+                
+                document.dispatchEvent(view_canvas_close_event); 
+                document.dispatchEvent(view_menu_restart_event);
+                document.dispatchEvent(view_menu_close_event);
             });
 
             //Update scale of view 
-            visualizer.onReSize(); 
-            reSizeElementCss($menu_element, visualizer.view_canvas.style.width, visualizer.view_canvas.style.height); 
+            window.dispatchEvent(new Event("resize"));
+            $view_menu_element.css("display", "none");
         });
         
         //Updating canvas size when window size changed 
         window.addEventListener("resize", (e)=>{
             visualizer.onReSize();
-            reSizeElementCss($menu_element,visualizer.view_canvas.style.width,visualizer.view_canvas.style.height); 
+            reSizeElementCss($view_menu_element,visualizer.view_canvas.style.width,visualizer.view_canvas.style.height); 
+            
         });
 
+
+        /*Custom Event Handling Through vanilla js*/ 
+   
+        //Resume Event 
+        document.addEventListener("view_menu_resume", (e) => {
+            console.log("View Menu Resume Event Fired!");
+            
+            
+            
+           
+            //Main Header Mode Changing Animation
+            slideToggleTextFromTo($view_header_main_element, "RESUME");
+        
+        });
+        
+        //Pause Event 
+        document.addEventListener("view_menu_pause", (e) => {
+            console.log("View Menu Pause Event Fired!");
+            
+
+           
+
+            //Main Header Mode Changing Animation
+            slideToggleTextFromTo($view_header_main_element, "PAUSE");
+        });
+
+        //Restart Event
+        document.addEventListener("view_menu_restart", (e) => {
+            console.log("View Menu Restart Event Fired!");
+
+            
+            //Main Header Mode Changing Animation
+            slideToggleTextFromTo($view_header_main_element,"RESTART");
+        
+        });
+
+
+        //Main Menu Open Event 
+        document.addEventListener("view_menu_open", (e) => {
+
+            console.log("View Menu Open Event Fired!");
+
+            document.dispatchEvent(view_canvas_open_event);
+            $($view_menu_element).slideDown();
+            $view_menu_element.css("display", "flex");
+            
+
+        });
+             
+        //Main Menu Close Event
+        document.addEventListener("view_menu_close", (e) => {
+            console.log("View Menu Close Event Fired!");
+
+            $view_menu_element.css("display", "none")
+            $view_header_main_element.css("opacity", 1)
+        });
+           
+        //Canvas Open Event Event 
+        document.addEventListener("view_canvas_open", (e) => {
+            console.log("View Canvas Open Event Fired!");
+            $view_canvas_element.css("opacity",1);
+            $view_header_main_element.css("opacity", 0);
+        });
+
+        //Canvas Close Event Event 
+        document.addEventListener("view_canvas_close", (e) => {
+            console.log("View Canvas Close Event Fired!");
+            $view_canvas_element.css("opacity", 0.0);
+            $view_header_main_element.css("opacity", 1);
+        });
+
+        
         function reSizeElementCss(el, w, h) {
             el.css("width",w);
             el.css("height", h);
+        }
+
+        //Jquery animation helper functions
+        function slideToggleTextFromTo(jqueryObj,from="PAUSE",to="MAIN MENU"){
+            jqueryObj
+                .text(from);
+            setTimeout(() => jqueryObj
+                .slideToggle(250), 500);
+
+            setTimeout(() =>
+                jqueryObj
+                    .text(to)
+                    .slideToggle(125)
+                , 1000); 
         }
     </script>
 </body>

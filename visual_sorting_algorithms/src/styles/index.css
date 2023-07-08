@@ -9,7 +9,8 @@ body {
 }
 
 #view-container {
-    background-color: rgb(140, 255, 150);
+    user-select: none;
+    background-color: rgb(26, 39, 27);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -19,6 +20,7 @@ body {
 
 #view-canvas {
     background-color: rgb(0,0,0);
+    transition: all 0.3s ease-out;
 }
 #view-menu{
     background:linear-gradient(0deg,black,rgba(200,255,251,0.5));
@@ -30,6 +32,7 @@ body {
     box-sizing:border-box;
     background-blend-mode: difference;
     display:flex;
+    flex-direction: column;
     justify-content: center;
     vertical-align: middle;
     align-items: center;
@@ -37,6 +40,30 @@ body {
 }
 #view-menu *{
     opacity:1;
+}
+.view-menu-button{
+    width:35%;
+    margin-top:8px;
+    border:0;
+    border-radius: 4px;
+    background-color: hsl(12, 100%, 56%);
+    font-size:24px;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bolder;
+    padding:8px;
+    transition: all 0.3s ease-in;
+    cursor:pointer;
+}
+#view-menu-exit-button{
+    position: absolute;
+    right: 4px;
+    top: 0;
+    font-size: 1.25em;
+    width: 25%;
+}
+.view-menu-button:hover{
+    background-color: hsl(12, 100%, 65%);
 }
 #cookieConsent {
     position: fixed;
@@ -53,13 +80,16 @@ body {
     padding: 10px;
     font-size: 16px;
     border-radius: 4px;
-    background-color: #fff;
-    color: #333;
+    background-color:  hsl(12, 100%, 56%);
+    color: #ffffff;
     font-family:Arial, Helvetica, sans-serif;
     font-weight: bolder;
     appearance: none;
-    transition: all 0.3s ease-in;
+    transition: all 0.1s ease-in;
+    transition: border 0s ease-in;
     text-align:center;
+    border:0;
+    cursor: pointer;
 }
 
 .custom-select:focus {
@@ -67,9 +97,12 @@ body {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
+
+
 .custom-select:hover {
     content: '\25BC';
-    background-color: hsl(343, 100%, 80%);
+    border: 1px solid #fff;
+    background-color: hsl(12, 100%, 65%);
 
 }
 
@@ -85,4 +118,16 @@ body {
 
 .custom-select:hover:after {
     color: #999;
+}
+.view-header{
+    opacity:0;
+   color:white;
+   position:absolute;
+   left:auto;
+   right:auto;
+   top:auto;
+   bottom:auto;
+   font-weight:bolder;
+   font-family:Arial, Helvetica, sans-serif;
+   font-size:2em;
 }
