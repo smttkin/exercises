@@ -15,7 +15,7 @@
         <h1 class="view-header" id="view-header-main">MAIN MENU</h1>
         <canvas id="view-canvas"></canvas>
         <div id="view-menu">
-            <select class="custom-select">
+            <select class="custom-select" id="view-menu-select">
                 <option value="bubble">Bubble Sort</option>
                 <option value="selection">Selection Sort</option>
                 <option value="insertion">Insertion Sort</option>
@@ -55,13 +55,17 @@
     <script>
         //ArrayVisualizer Object 
         let visualizer;
-    
+        let curr_algorithm;
+        let curr_mode="default";
+        
+
         //Jquery Objects of HTML elements 
         let 
         $view_menu_element,
         $view_canvas_element,
         $view_container_element,
         $view_header_main_element,
+        $view_menu_select_element,
         $view_menu_exit_button_element,
         $view_menu_resume_button_element,
         $view_menu_pause_button_element,
@@ -92,6 +96,7 @@
             $view_menu_resume_button_element  =$('#view-menu-resume-button');
             $view_menu_pause_button_element   =$('#view-menu-pause-button');
             $view_menu_restart_button_element =$('#view-menu-restart-button');
+            $view_menu_select_element = $('#view-menu-select');
             
             //Visualizer Object
             visualizer=new ArrayVisualizer();
@@ -114,6 +119,7 @@
             $view_canvas_element.on("click",(e)=>{
                 document.dispatchEvent(view_menu_open_event);
                 document.dispatchEvent(view_canvas_open_event);
+                curr_mode="main_menu";
             });
             
 
@@ -127,6 +133,7 @@
                 document.dispatchEvent(view_canvas_close_event);
                 document.dispatchEvent(view_menu_resume_event);
                 document.dispatchEvent(view_menu_close_event);
+                curr_mode="resume";
             });
 
             //Pause Event
@@ -135,6 +142,7 @@
                 document.dispatchEvent(view_canvas_close_event); 
                 document.dispatchEvent(view_menu_pause_event);
                 document.dispatchEvent(view_menu_close_event);
+                curr_mode="pause";
             });
 
             //Restart Event
@@ -143,7 +151,14 @@
                 document.dispatchEvent(view_canvas_close_event); 
                 document.dispatchEvent(view_menu_restart_event);
                 document.dispatchEvent(view_menu_close_event);
+                curr_mode="restart";
             });
+
+            //Select Algorithm Event
+            $view_menu_select_element.change(()=>{
+                var curr_value=$("#view-menu-select option:selected").val();
+                curr_algorithm=curr_value;
+            })
 
             //Update scale of view 
             window.dispatchEvent(new Event("resize"));
@@ -164,9 +179,6 @@
         document.addEventListener("view_menu_resume", (e) => {
             console.log("View Menu Resume Event Fired!");
             
-            
-            
-           
             //Main Header Mode Changing Animation
             slideToggleTextFromTo($view_header_main_element, "RESUME");
         
@@ -224,7 +236,7 @@
         //Canvas Close Event Event 
         document.addEventListener("view_canvas_close", (e) => {
             console.log("View Canvas Close Event Fired!");
-            $view_canvas_element.css("opacity", 0.0);
+            $view_canvas_element.css("opacity", 0.25);
             $view_header_main_element.css("opacity", 1);
         });
 
@@ -232,6 +244,87 @@
         function reSizeElementCss(el, w, h) {
             el.css("width",w);
             el.css("height", h);
+        }
+
+
+        async function viBubbleSort(arr, each_elem_ms,delay_ms, callback = async (arr, color_obj, each_elem_ms, delay_ms) => { },compare_callback=async (arr,color_obj,each_elem_ms,delay_ms)=>{}, swap_callback = async (arr, color_obj, each_elem_ms, delay_ms) => { }){
+           
+            const n=arr.length;
+            for(var i=0;i<n;i++){
+                
+                for(var j=0;j<n-1-i;j++){
+                    
+                    await compare_callback(arr,{[j]:"red",[j+1]:"red"},each_elem_ms,delay_ms);      
+
+                    if(arr[j]>arr[j+1]) {
+                        
+                        swap(arr,j,j+1);
+                    
+                        await swap_callback(arr, { [j]: "white", [j + 1]: "white" }, each_elem_ms, delay_ms);
+                    }
+                    
+                
+                }
+                
+                
+            }
+            scanAllArrayElements(arr,2);
+        }
+    
+        async function viInsertionSort(arr, each_elem_ms, delay_ms,callback=async (arr, color_obj, each_elem_ms, delay_ms)=>{}, compare_callback = async (arr, color_obj, each_elem_ms, delay_ms) => { }, swap_callback = async (arr, color_obj, each_elem_ms, delay_ms) => { }) {
+            const n=arr.length;
+            for (let i = 1; i <n; i++) {
+                let j = i;
+                
+                await callback(arr, { [j]: "white", [j - 1]: "white" },0,0);
+                 
+                while (j > 0 && arr[j - 1] > arr[j]) {
+                    await compare_callback(arr, { [j]: "red", [j-1]: "red" }, each_elem_ms, delay_ms);
+                    // Swap elements in-place
+                    swap(arr,j,j-1);
+                    await swap_callback(arr, { [j]: "white", [j - 1]: "white" }, each_elem_ms, delay_ms);
+                    
+                    j--;
+                }
+                
+            }
+            
+            
+            scanAllArrayElements(arr, 2);
+        }
+        async function viSelectionSort(arr, each_elem_ms, delay_ms, callback = async (arr, color_obj, each_elem_ms, delay_ms) => { }, compare_callback = async (arr, color_obj, each_elem_ms, delay_ms) => { }, swap_callback = async (arr, color_obj, each_elem_ms, delay_ms) => { }){
+            const n = arr.length;
+
+            for (let i = 0; i < n ; i++) {
+                var minIndex=i;
+                
+                for(let j=i;j<n;j++){
+                    await compare_callback(arr,{[minIndex]:"red",[j]:"red"},each_elem_ms,delay_ms);
+                    if(arr[j]<arr[minIndex]){
+                        minIndex=j;
+                    }
+                    
+                    await callback(arr, { [i]:"white",[j]: "white" },each_elem_ms,delay_ms);
+                }
+                swap(arr,i,minIndex);
+                await swap_callback(arr, { [minIndex]: "lime" }, each_elem_ms, delay_ms);
+                
+                
+            }
+            scanAllArrayElements(arr,2);
+        }
+        async function scanAllArrayElements(arr,seconds){
+            for(var i=0;i<arr.length;i++)
+            await visualizer.updateView(arr,{[i]:"lime"},0,seconds*1000/arr.length);
+            
+            await visualizer.updateView(arr, {}, 0, seconds*125/arr.length);
+            
+            await visualizer.updateView(arr, {[all_array_elements]:"lime"}, 0, seconds * 125 / arr.length);
+        }
+        function swap(arr,i,j){
+            var temp=arr[i];
+            arr[i]=arr[j];
+            arr[j]=temp;
         }
 
         //Jquery animation helper functions

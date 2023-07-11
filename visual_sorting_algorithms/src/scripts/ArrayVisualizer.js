@@ -1,4 +1,4 @@
-
+const all_array_elements = 999999;
 class ArrayVisualizer {
     constructor() {
       this.screenHeight = null;
@@ -15,7 +15,7 @@ class ArrayVisualizer {
       var max = Math.max(...arr);
       var min = Math.min(...arr);
       var height_factor = Math.ceil(this.view_canvas.height / (max - min +1));
-      var width_factor = Math.ceil(this.view_canvas.width / arr.length);
+      var width_factor = (this.view_canvas.width-(arr.length)+1) / arr.length;
       return { max, min, height_factor, width_factor };
     }
     onReSize(e) {
@@ -32,7 +32,7 @@ class ArrayVisualizer {
         this.view_container.style.height = this.screenHeight + "px";
         this.view_canvas.style.width = this.screenHeight - this.padding + "px";
         this.view_canvas.style.height = this.screenHeight - this.padding + "px";
-        this.view_canvas.setAttribute("width", this.screenWidth - this.padding);
+        this.view_canvas.setAttribute("width", this.screenHeight - this.padding);
         this.view_canvas.setAttribute("height", this.screenHeight - this.padding);
       } else {
         this.view_container.style.width = this.screenWidth + "px";
@@ -40,7 +40,7 @@ class ArrayVisualizer {
         this.view_canvas.style.width = this.screenWidth - this.padding + "px";
         this.view_canvas.style.height = this.screenWidth - this.padding + "px";
         this.view_canvas.setAttribute("width", this.screenWidth - this.padding);
-        this.view_canvas.setAttribute("height", this.screenHeight - this.padding);
+        this.view_canvas.setAttribute("height", this.screenWidth - this.padding);
       }
 
     }
@@ -48,24 +48,24 @@ class ArrayVisualizer {
     clearView() {
       this.view_canvas = document.getElementById("view-canvas");
       this.view_canvas.clearRect(0, 0, this.view_canvas.width, this.view_canvas.height);
-    }
     
-    async updateView(newArr = [1], color_arr = ["red"], each_elem_duration = 0.01, sleepms = 500, callback = (arr,color_arr,each_elem_duration,sleepms,index) => { }) {
+    }
+  async updateView(newArr = [1], color_obj = {[all_array_elements]:"white"}, each_elem_duration = 0.01, delay_ms = 500, callback = (arr,color_obj,each_elem_duration,delay_ms,index) => { }) {
       //Object that allows to manipulate canvas context
       var view_canvas_ctx = this.view_canvas.getContext('2d');
       
       //Some calculations about how array elements will be positioned and scaled as rectangle in canvas  
       let { min, max, height_factor, width_factor } =this.calculateFactors(newArr);
       
-      //Wait for sleepms milliseconds on each updateView frame
-      if(sleepms>0)
-        await sleep(sleepms);
+      //Wait for delay_ms milliseconds on each updateView frame
+      if(delay_ms>0)
+        await sleep(delay_ms);
 
       //Cleaning canvas 
       view_canvas_ctx.clearRect(0, 0, this.view_canvas.width, this.view_canvas.height);
 
       //Additional things may user want to do with array
-      callback(newArr,color_arr,each_elem_duration,sleepms,index);
+      callback(newArr,color_obj,each_elem_duration,delay_ms,index);
 
       for (var index = 0; index < newArr.length; index++) {
         
@@ -73,7 +73,7 @@ class ArrayVisualizer {
         //If onReSize function executed while updateView is still running
         if (this.onresizecheck) {
           this.onresizecheck = null;
-          this.updateView(newArr, color_arr, each_elem_duration, sleepms);
+          this.updateView(newArr, color_obj, each_elem_duration, delay_ms);
           return;
         }
         
@@ -88,15 +88,20 @@ class ArrayVisualizer {
         /*so we can draw all the elements properly into the canvas*/
         var x = index * width_factor+index;
         var y = this.view_canvas.height - (height_factor * (val));
-        var w = width_factor-1;
+        var w = width_factor;
         var h = val * height_factor;
                 
-        //Gathering current element's color from color_arr
+        //Gathering current element's color from color_obj
         /*
           Special case: If there is less color info then newArr element count
           The colors of array elements should be repeated periodically
         */
-        view_canvas_ctx.fillStyle = (color_arr.length<newArr.length)?color_arr[index%(color_arr.length)]:color_arr[index];
+        if (color_obj[index])
+          view_canvas_ctx.fillStyle = color_obj[index];
+        else if (color_obj[all_array_elements])
+          view_canvas_ctx.fillStyle = color_obj[all_array_elements];
+        else
+          view_canvas_ctx.fillStyle = "white";
         
         //Drawing the rectangle for the current element into the canvas
         view_canvas_ctx.fillRect(x, y, w, h);
